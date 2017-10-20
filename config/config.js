@@ -1,13 +1,9 @@
 var config = {
     dbmysql: {
-        host: '',
-        user: '',
-        password: '',
-        db_name: ''
-    },
-    dbmmongo: {
-        database: 'mongodb://127.0.0.1:27017/dbname',
-        port: '3000'
+        host: process.env.MYSQL_HOST,
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        db_name: process.env.MYSQL_DATABASE
     },
     //server details
     default: {

@@ -1,11 +1,23 @@
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
-const logger = require('morgan');
+const morgan = require('morgan');
+var methodOverride = require('method-override');
+var session = require('express-session');
+var flash = require('express-flash');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+var expressValidator = require('express-validator');
+const dotenv = require('dotenv');
+var passport = require('passport');
 
+// Load environment variables from .env file
+dotenv.load();
+
+// Routers
 const index = require('./src/routes/index');
+
+require('./src/controllers/passport');
 
 const app = express();
 
@@ -14,10 +26,21 @@ app.set('views', path.join(__dirname, './src/views'));
 app.set('view engine', 'ejs');
 
 app.use(favicon(path.join(__dirname, './src/public', '/images/favicon.ico')));
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(expressValidator());
+app.use(methodOverride('_method'));
+app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(function(req, res, next) {
+    res.locals.user = req.user;
+    next();
+});
+
 app.use(express.static(path.join(__dirname, './src/public')));
 
 app.use('/', index);
@@ -26,9 +49,9 @@ app.use('/', index);
 app.use((req, res, next) => {
     let err = new Error('Not Found');
     err.status = 404;
-    res.render('pages/404', {
-        'message': 'Page not found'
-    });
+    // res.render('pages/404', {
+    //     'message': 'Page not found'
+    // });
     next(err);
 });
 

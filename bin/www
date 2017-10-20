@@ -5,7 +5,7 @@
  */
 
 var http = require('http');
-var debug = require('debug')('title:title-name');
+var debug = require('debug')('title:expense-manager');
 var app = require('../app');
 var config = require('../config/config.js');
 

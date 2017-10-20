@@ -1,6 +1,5 @@
 const express = require('express');
-const db = require('../models/sqlSchema');
-const db1 = require('../models/mongoSchema');
+const db = require('../models/schema');
 
 /* GET home page. */
 exports.index_get = function(req, res) {
