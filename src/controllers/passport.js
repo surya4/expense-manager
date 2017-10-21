@@ -7,47 +7,46 @@ var GithubStrategy = require('passport-github').Strategy;
 
 var User = require('../models/schema');
 
+// Serialize sessions
 passport.serializeUser(function(user, done) {
-    console.log("Calling from serialize" + user);
     done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-    console.log("Calling from deserialize" + id);
-    User.findById(id, function(err, user) {
-        console.log("Calling from deserialize user" + user);
-        done(err, user);
-    });
+    db.User.find({ where: { id: id } })
+        .success(function(user) {
+            done(null, user);
+        }).error(function(err) {
+            done(err, null);
+        });
 });
 
 // Sign In with Email and Password
-passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
-    console.log("Data from email and password login in passport" +
-        email + password);
+passport.use(new LocalStrategy(
+    function(email, password, done) {
+        console.log("Data from email and password login in passport" + email + password);
+        User.find({ where: { email: email } })
+            .success(function(user) {
+                console.log("Data from user login in passport" + user);
+                if (!user) {
+                    return done(null, false, {
+                        msg: 'The email address ' + email +
+                            'is not associated with any account.' +
+                            'Double-check your email address and try again.'
+                    });
+                };
+                console.log("Checking before comparing" + user);
 
-    User.findOne({
-        email: email
-    }, function(err, user) {
-        console.log("Data from user login in passport" +
-            user);
-
-        if (!user) {
-            return done(null, false, {
-                msg: 'The email address ' + email +
-                    'is not associated with any account.' +
-                    'Double-check your email address and try again.'
+                user.comparePassword(password, function(err, isMatch) {
+                    if (!isMatch) {
+                        return done(null, false, { msg: 'Invalid email or password' });
+                    }
+                    return done(null, user);
+                });
+            }).error(function(err) {
+                done(err);
             });
-        };
-        console.log("Checking before comparing" + user);
-
-        user.comparePassword(password, function(err, isMatch) {
-            if (!isMatch) {
-                return done(null, false, { msg: 'Invalid email or password' });
-            }
-            return done(null, user);
-        });
-    })
-}));
+    }));
 
 // Facebook Login
 passport.use(new FacebookStrategy({

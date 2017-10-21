@@ -97,34 +97,40 @@ exports.signupPost = function(req, res, next) {
     // finding user email and saving it 
     console.log("finding user email and saving it");
 
-    User.findOne({
-        $or: [{
-            'email': req.body.email
-        }, {
-            'username': req.body.username
-        }]
-    }, function(err, user) {
+    console.log(User);
 
-        // user data of exists
-        console.log(user);
-        if (user) {
-            req.flash('error', { msg: 'The email address / username you have entered is already associated with another account.' });
-            return res.redirect('/signup');
-        }
-        user = new User({
-            name: req.body.name,
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password
+    User.findAll({
+            where: {
+                'email': req.body.email,
+                'username': req.body.username
+            }
+        })
+        .then(function(err, user) {
+            // user data of exists
+            console.log("user data -- >" + user);
+            if (!user) {
+                req.flash('error', { msg: 'The email address / username you have entered is already associated with another account.' });
+                console.log("User is already present in db");
+                return res.redirect('/signup');
+            }
+            User.build({
+                    name: req.body.name,
+                    username: req.body.username,
+                    email: req.body.email,
+                    password: req.body.password
+                })
+                .save()
+                .then(function(userd) {
+                    console.log(userd);
+                    // saving user in db
+                    req.logIn(userd, function(err) {
+                        res.redirect('/login');
+                    });
+                });
+        }).error(function(err) {
+            done(err);
         });
-        console.log(user);
-        // saving user in db
-        user.save(function(err) {
-            req.logIn(user, function(err) {
-                res.redirect('/login');
-            });
-        });
-    })
+
 };
 
 
