@@ -1,17 +1,19 @@
 var Sequelize = require('sequelize');
 var Crypto = require('crypto');
 var Bcrypt = require('bcrypt-nodejs');
-const Op = Sequelize.Op;
 
 var config = require('../../config/config.js');
+
+// mysql login data from config
+console.log(config);
 
 var connection = new Sequelize(
     config.dbmysql.db_name,
     config.dbmysql.user,
     config.dbmysql.password, {
         host: config.dbmysql.host,
-        dialect: 'mysql'
-        operatorsAliases: Op,
+        dialect: 'mysql',
+        operatorsAliases: Sequelize.Op,
         pool: {
             max: 5,
             min: 0,
@@ -41,7 +43,5 @@ connection.sync((err) => {
     if (err) throw err
     console.log('You are now connected to mysql database... ' + config.dbmysql.db_name);
 })
-
-connection.query('use ' + config.dbmysql.db_name);
 
 module.exports = connection;
