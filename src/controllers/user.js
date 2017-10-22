@@ -94,9 +94,6 @@ exports.signupPost = function(req, res, next) {
         return res.redirect('/signup');
     }
 
-    // check input
-    // console.log(req.body);
-
     // finding user email and saving it 
     console.log("finding user email and saving it");
 
@@ -115,12 +112,6 @@ exports.signupPost = function(req, res, next) {
         .then(function(user) {
             // user data of exists
             console.log("user data -- >" + user);
-            // if (user) {
-            //     req.flash('error', { msg: 'The email address / username you have entered is already associated with another account.' });
-            //     console.log("User is already present in db");
-            //     return res.redirect('/signup');
-            // }
-            console.log("hashed password -->" + create_hashPassword(req.body.password));
             if (user == null) {
                 models.userTables.create({
                         name: req.body.name,
@@ -128,29 +119,14 @@ exports.signupPost = function(req, res, next) {
                         email: req.body.email,
                         password: create_hashPassword(req.body.password)
                     })
-                    // var userd = User.build(req.body);
-                    // userd.name = req.body.name;
-                    // userd.username = req.body.username;
-                    // userd.email = req.body.email;
-                    // userd.password = User.hashPassword(req.body.password);
-
-                // userd.save()
-                .then(function(user) {
+                    .then(function(user) {
                         console.log("Adding user -- >" + user);
                         // saving user in db
                         req.logIn(user, function(err) {
                             res.redirect('/login');
                         });
                     })
-                    // .catch(function(err) {
-                    //     return done(null, err);
-                    // });
             }
-            // if (user) {
-            //     return done(null, false);
-            // }
-
-            // });
         })
         .catch(function(err) {
             // console.log("user data -- >" + user);
@@ -452,16 +428,14 @@ exports.unlink = function(req, res, next) {
     });
 };
 
-
-// function create_hashPassword(password) {
-//     bcrypt.genSalt(10, function(err, salt) {
-//         bcrypt.hash(password, salt, function(error, hash) {
-//             // this.password = hash;
-//             return hash;
-//         });
-//     });
-// };
-
+// get hash of password
 function create_hashPassword(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+};
+
+// validate password
+function comparePassword(password, cb) {
+    bcrypt.compare(password, this.password, function(err, isMatch) {
+        cb(err, isMatch);
+    });
 };

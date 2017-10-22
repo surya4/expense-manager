@@ -2,9 +2,8 @@ var Sequelize = require('sequelize');
 var fs = require("fs");
 var path = require('path');
 var config = require(path.join(__dirname, '../../config/config.js'));
-
-// var UserMeta = require('./schema.js');
 var db = {};
+
 // mysql login data from config
 console.log("Calling config -- > " + config);
 
@@ -22,38 +21,8 @@ var sequelize = new Sequelize(
         },
     });
 
-// var UserSchema = sequelize.import(__dirname + "/schema.js");
 
-// sequelize.sync(
-//     //     { force: true }).then(function() {
-//     //     // Table created
-//     //     return User.create();
-//     // }
-// );
-
-// // you can define relationships here
-// module.exports.User = UserSchema;
-
-// load models
-// var models = [
-//     'schema',
-// ];
-
-// models.forEach(function(model) {
-//     module.exports[model] = sequelize.import(path.join(__dirname + '/' + model));
-// });
-
-// models.forEach(function(file) {
-//     var model = sequelize.import(path.join(__dirname + '/' + file));
-//     db[model.name] = model;
-// });
-
-// export connection
-// module.exports.schema = models['schema'];
-// module.exports.sequelize = sequelize;
-
-fs
-    .readdirSync(__dirname)
+fs.readdirSync(__dirname)
     .filter(function(file) {
         return (file.indexOf(".") !== 0) && (file !== "index.js");
     })
