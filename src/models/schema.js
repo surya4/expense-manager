@@ -1,6 +1,4 @@
 var Sequelize = require('sequelize');
-var crypto = require('crypto');
-var bcrypt = require('bcrypt-nodejs');
 // var connection = require('./index');
 // var config = require('../../config/config.js');
 
@@ -53,16 +51,23 @@ module.exports = function(sequelize, DataTypes) {
 
         // },
 
+        // classMethods: {
+        //     hashPassword: function(password) {
+        //         return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+        //     }
+        // },
+
         instanceMethods: {
-            hashPassword: function(password, done) {
-                return bcrypt.genSalt(10, function(err, salt) {
-                    return bcrypt.hash(password, salt, function(error, encrypted) {
-                        this.password = encrypted;
-                        this.salt = salt;
-                        return done();
-                    });
-                });
-            },
+            // hashPassword: function(password, done) {
+            //     return bcrypt.genSalt(10, function(err, salt) {
+            //         return bcrypt.hash(password, salt, function(error, encrypted) {
+            //             this.password = encrypted;
+            //             this.salt = salt;
+            //             return done();
+            //         });
+            //     });
+            // },
+
             comparePassword: function(password, cb) {
                 bcrypt.compare(password, this.password, function(err, isMatch) {
                     cb(err, isMatch);

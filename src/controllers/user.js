@@ -3,6 +3,8 @@ var models = require('../models');
 // User = models['User'];
 var passport = require('passport');
 var sequelize = require('sequelize');
+var crypto = require('crypto');
+var bcrypt = require('bcrypt-nodejs');
 // Login required middleware
 
 exports.ensureAuthenticated = function(req, res, next) {
@@ -100,9 +102,11 @@ exports.signupPost = function(req, res, next) {
 
     console.log("Calling model --> " + models['User']);
     console.log("Calling model --> " + models['schema']);
+    console.log("Calling model --> " + models.userTables);
+    console.log("Calling model --> " + models['userTables']);
 
     // sequelize.sync({}).then(function() {
-    return models.User.findOne({
+    models.userTables.findOne({
             where: {
                 'email': req.body.email,
                 'username': req.body.username
@@ -116,13 +120,13 @@ exports.signupPost = function(req, res, next) {
             //     console.log("User is already present in db");
             //     return res.redirect('/signup');
             // }
-            // console.log("hashed password -->" + user.hashPassword(req.body.password));
+            console.log("hashed password -->" + create_hashPassword(req.body.password));
             if (user == null) {
-                User.create({
+                models.userTables.create({
                         name: req.body.name,
                         username: req.body.username,
                         email: req.body.email,
-                        password: req.body.password
+                        password: create_hashPassword(req.body.password)
                     })
                     // var userd = User.build(req.body);
                     // userd.name = req.body.name;
@@ -446,4 +450,18 @@ exports.unlink = function(req, res, next) {
             res.redirect('/account');
         });
     });
+};
+
+
+// function create_hashPassword(password) {
+//     bcrypt.genSalt(10, function(err, salt) {
+//         bcrypt.hash(password, salt, function(error, hash) {
+//             // this.password = hash;
+//             return hash;
+//         });
+//     });
+// };
+
+function create_hashPassword(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
 };
