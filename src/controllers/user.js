@@ -1,7 +1,8 @@
 const express = require('express');
-const User = require('../models/schema');
+var models = require('../models');
+// User = models['User'];
 var passport = require('passport');
-
+var sequelize = require('sequelize');
 // Login required middleware
 
 exports.ensureAuthenticated = function(req, res, next) {
@@ -42,7 +43,7 @@ exports.loginPost = function(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
         console.log("Checking user " + user);
         if (!user) {
-            console.log(info);
+            console.log("Login user authenticate --> " + info);
             req.flash('error', { msg: info });
             return res.redirect('/login')
         }
@@ -87,7 +88,7 @@ exports.signupPost = function(req, res, next) {
 
     if (errors) {
         req.flash('error', errors);
-        console.log(errors);
+        console.log("Validating errors" + errors);
         return res.redirect('/signup');
     }
 
@@ -97,38 +98,62 @@ exports.signupPost = function(req, res, next) {
     // finding user email and saving it 
     console.log("finding user email and saving it");
 
-    console.log(User);
+    console.log("Calling model --> " + models['User']);
+    console.log("Calling model --> " + models['schema']);
 
-    User.findAll({
+    // sequelize.sync({}).then(function() {
+    return models.User.findOne({
             where: {
                 'email': req.body.email,
                 'username': req.body.username
             }
         })
-        .then(function(err, user) {
+        .then(function(user) {
             // user data of exists
             console.log("user data -- >" + user);
-            if (!user) {
-                req.flash('error', { msg: 'The email address / username you have entered is already associated with another account.' });
-                console.log("User is already present in db");
+            // if (user) {
+            //     req.flash('error', { msg: 'The email address / username you have entered is already associated with another account.' });
+            //     console.log("User is already present in db");
+            //     return res.redirect('/signup');
+            // }
+            // console.log("hashed password -->" + user.hashPassword(req.body.password));
+            if (user == null) {
+                User.create({
+                        name: req.body.name,
+                        username: req.body.username,
+                        email: req.body.email,
+                        password: req.body.password
+                    })
+                    // var userd = User.build(req.body);
+                    // userd.name = req.body.name;
+                    // userd.username = req.body.username;
+                    // userd.email = req.body.email;
+                    // userd.password = User.hashPassword(req.body.password);
+
+                // userd.save()
+                .then(function(user) {
+                        console.log("Adding user -- >" + user);
+                        // saving user in db
+                        req.logIn(user, function(err) {
+                            res.redirect('/login');
+                        });
+                    })
+                    // .catch(function(err) {
+                    //     return done(null, err);
+                    // });
+            }
+            // if (user) {
+            //     return done(null, false);
+            // }
+
+            // });
+        })
+        .catch(function(err) {
+            // console.log("user data -- >" + user);
+            if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
+                req.flash('error', { msg: 'The email address you have entered is already associated with another account.' });
                 return res.redirect('/signup');
             }
-            User.build({
-                    name: req.body.name,
-                    username: req.body.username,
-                    email: req.body.email,
-                    password: req.body.password
-                })
-                .save()
-                .then(function(userd) {
-                    console.log(userd);
-                    // saving user in db
-                    req.logIn(userd, function(err) {
-                        res.redirect('/login');
-                    });
-                });
-        }).error(function(err) {
-            done(err);
         });
 
 };
