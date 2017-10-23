@@ -32,7 +32,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressValidator());
 app.use(methodOverride('_method'));
-app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
+app.use(session({
+    secret: "asxsadasdasdasdasdasdsadasdasdasdsa",
+    resave: true,
+    saveUninitialized: true
+}));
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());

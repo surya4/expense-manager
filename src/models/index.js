@@ -14,6 +14,7 @@ var sequelize = new Sequelize(
         host: config.dbmysql.host,
         dialect: 'mysql',
         operatorsAliases: Sequelize.Op,
+        logging: false,
         pool: {
             max: 5,
             min: 0,
