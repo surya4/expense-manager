@@ -168,7 +168,11 @@ exports.profilePut = function(req, res, next) {
         return res.redirect('/account');
     }
 
-    User.findById(req.user.id, function(err, user) {
+    models.userTables.find({
+        where: {
+            id: id
+        }
+    }).then(function(user) {
         if ('password' in req.body) {
             user.password = req.body.password;
         } else {
@@ -178,7 +182,7 @@ exports.profilePut = function(req, res, next) {
             user.location = req.body.location;
             user.website = req.body.website;
         }
-        user.save(function(err) {
+        models.userTables.update(function(err) {
             if ('password' in req.body) {
                 req.flash('success', { msg: 'Your password has been changed.' });
             } else if (err && err.code === 11000) {

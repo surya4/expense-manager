@@ -53,7 +53,7 @@ passport.use(new LocalStrategy({
                         return done(null, user);
                     } else {
                         console.log('The username and password does NOT match!');
-                        return done(null, user, { msg: 'Invalid email or password' });
+                        return done(null, false, { msg: 'Invalid email or password' });
                     }
 
                 });
