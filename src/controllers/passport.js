@@ -27,23 +27,6 @@ passport.use(new LocalStrategy({
         usernameField: 'email'
     },
     function(email, password, done) {
-
-        // function comparePassword(hash, password, cb) {
-        //     console.log("hash" + hash);
-        //     console.log("password" + password);
-        //     bcrypt.compare(password, hash, function(err, res, isMatch) {
-        //         // res == true
-        //         cb(err, isMatch);
-        //     });
-        // }
-        // function comparePassword(hash, password, cb) {
-        //     bcrypt.compareSync(password, hash, function(err, isMatch) {
-        //         console.log("hash" + hash);
-        //         console.log("password" + password);
-        //         console.log("isMatch" + isMatch);
-        //         cb(err, isMatch);
-        //     });
-        // };
         console.log("Data from email and password login in passport " + email + " " + password);
         models.userTables.findOne({
                 where: {
@@ -60,24 +43,7 @@ passport.use(new LocalStrategy({
                     });
                 };
                 console.log("Checking before comparing" + user);
-                // comparePassword(user.password, password) {
                 console.log("password in login --> " + password);
-
-                // if (!comparePassword(user.password, password)) {
-                //     return done(null, user, { msg: 'Invalid email or password' });
-                // }
-                // return (user);
-                // }
-                // })
-                // comparePassword(user.password, password, function(err, isMatch) {
-                //     console.log("isMatch -- >" + isMatch);
-                //     if (!isMatch) {
-                //         console.log("hash" + user.password);
-                //         console.log("password" + password);
-                //         return done(null, false, { msg: 'Invalid email or password' });
-                //     }
-                //     return done(null, user);
-                // });
 
                 bcrypt.compare(password, user.password, function(err, isMatch) {
                     if (err)
@@ -99,11 +65,6 @@ passport.use(new LocalStrategy({
             return done(null, false, {
                 message: 'Something went wrong with your Login'
             });
-
-
-            // .error(function(err) {
-            //     done(err);
-            // });
         });
     }));
 
