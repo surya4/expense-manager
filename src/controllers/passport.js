@@ -13,13 +13,16 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
+// used to deserialize the user
 passport.deserializeUser(function(id, done) {
-    db.User.find({ where: { id: id } })
-        .success(function(user) {
-            done(null, user);
-        }).error(function(err) {
-            done(err, null);
-        });
+    models.userTables.findById(id).then(function(user) {
+        if (user) {
+            done(null, user.get());
+        } else {
+            done(user.errors, null);
+        }
+    });
+
 });
 
 // Sign In with Email and Password
@@ -133,50 +136,120 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
 }, function(req, accessToken, refreshToken, profile, done) {
     if (req.user) {
-        User.findOne({
-            google: profile.id
-        }, function(err, user) {
-            if (user) {
-                req.flash('error', { msg: 'There is already an existing account linked with Google+ that belongs to you.' });
-                done(err);
-            } else {
-                User.findById(req.user.id, function(err, user) {
-                    user.name = user.name || profile.displayName;
-                    user.gender = user.gender || profile._json.gender;
-                    user.picture = user.picture || profile._json.image.url;
-                    user.google = profile.id;
-                    user.save(function(err) {
+        models.userTables.findOne({
+                where: {
+                    google: profile.id
+                }
+            }).then(function(user) {
+                if (user) {
+                    console.log("Already User exists in Google+ " + user);
+                    req.flash('error', { msg: 'There is already an existing account linked with Google+ that belongs to you.' });
+                    // done(err);
+                } else {
+                    var new_User = {
+                        name: user.name || profile.displayName,
+                        gender: user.gender || profile._json.gender,
+                        picture: user.picture || profile._json.image.url,
+                        google: profile.id
+                    }
+                    console.log("Inserting into user 1" + new_User);
+                    models.userTables.create(
+                        new_User
+                    ).then(function(res) {
                         req.flash('success', { msg: 'Your Google account has been linked.' });
-                        done(err, user);
+                        return res.redirect('/');
                     })
-                })
+                }
+                // .then(function(user) {
+                // user.name = user.name || profile.displayName;
+                // user.gender = user.gender || profile._json.gender;
+                // user.picture = user.picture || profile._json.image.url;
+                // user.google = profile.id;
+                // then(function(user) {
+
+                // req.logIn(user, function(err) {
+                // return res.redirect('/');
+                // });
+                // done(err, user);
+            })
+            .catch(function(err) {
+                // console.log("user data -- >" + user);
+                // if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
+                // req.flash('error', { msg: 'The email address you have entered is already associated with another account.' });
+                console.log("Error " + err);
+                return res.redirect('/signup');
+                // }
+            });
+        // })
+    }
+    // })
+    // }
+    else {
+        models.userTables.findOne({
+            where: {
+                google: profile.id
             }
-        })
-    } else {
-        User.findOne({
-            google: profile.id
-        }, function(err, user) {
+        }).then(function(user) {
+            console.log("Calling User G+ user 2" + user);
+
             if (user) {
                 return done(null, user);
             }
-            User.findOne({ email: profile.emails[0].value }, function(err, user) {
-                if (user) {
-                    req.flash('error', { msg: user.email + ' is already associated with another account.' });
-                    done(err);
-                } else {
-                    var newUser = new User({
-                        name: profile.displayName,
-                        email: profile.emails[0].value,
-                        gender: profile._json.gender,
-                        location: profile._json.location,
-                        picture: profile._json.image.url,
-                        google: profile.id
-                    });
-                    newUser.save(function(err) {
-                        done(err, newUser);
-                    });
-                }
-            });
+            models.userTables.findOne({
+                    where: {
+                        email: profile.emails[0].value
+                    }
+                }).then(function(user) {
+                    console.log("Calling User G+ user 2 again" + user);
+                    if (user) {
+                        req.flash('error', { msg: user.email + ' is already associated with another account.' });
+                        done(err);
+                    } else {
+                        var newUser = {
+                            name: profile.displayName,
+                            email: profile.emails[0].value,
+                            gender: profile._json.gender,
+                            location: profile._json.location,
+                            picture: profile._json.image.url,
+                            google: profile.id
+                        };
+                        console.log("Inserting into user 2" + newUser.name);
+                        models.userTables.create(
+                                // name = profile.displayName,
+                                // email = profile.emails[0].value,
+                                // gender = profile._json.gender,
+                                // location = profile._json.location,
+                                // picture = profile._json.image.url,
+                                // google = profile.id
+                                newUser
+                            )
+                            .then(function(user) {
+                                done(user);
+                                // return res.redirect('/');
+                            })
+                            // var newUser = new User({
+                            //     name: profile.displayName,
+                            //     email: profile.emails[0].value,
+                            //     gender: profile._json.gender,
+                            //     location: profile._json.location,
+                            //     picture: profile._json.image.url,
+                            //     google: profile.id
+                            // });
+                            // newUser.save(function(err) {
+                            //     done(err, newUser);
+                            // });
+                            // return res.redirect('/');
+                    }
+                })
+                .catch(function(err) {
+                    // console.log("user data -- >" + user);
+                    // if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
+                    // req.flash('error', { msg: 'The email address you have entered is already associated with another account.' });
+                    console.log("Error " + err);
+                    done(err, user);
+                    // return res.redirect('/signup');
+                    // }
+                });
         })
     }
 }));

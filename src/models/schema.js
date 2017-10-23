@@ -5,8 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     var User = sequelize.define('userTables', {
         name: DataTypes.STRING,
         username: { type: DataTypes.STRING, unique: true },
-        email: { type: DataTypes.STRING, unique: true, allowNull: false },
-        password: { type: DataTypes.STRING, allowNull: false },
+        email: { type: DataTypes.STRING, unique: true },
+        password: { type: DataTypes.STRING },
         passwordResetToken: DataTypes.VIRTUAL,
         passwordResetExpires: DataTypes.VIRTUAL,
         gender: DataTypes.STRING,

@@ -144,6 +144,7 @@ exports.signupPost = function(req, res, next) {
 
 //  GET account
 exports.profileGet = function(req, res) {
+    console.log("Calling Profile Get");
     res.render('pages/account/profile', {
         title: 'My Account'
     });
@@ -168,31 +169,43 @@ exports.profilePut = function(req, res, next) {
         return res.redirect('/account');
     }
 
-    models.userTables.find({
-        where: {
-            id: id
-        }
-    }).then(function(user) {
-        if ('password' in req.body) {
-            user.password = req.body.password;
-        } else {
-            user.email = req.body.email;
-            user.name = req.body.name;
-            user.gender = req.body.gender;
-            user.location = req.body.location;
-            user.website = req.body.website;
-        }
-        models.userTables.update(function(err) {
-            if ('password' in req.body) {
-                req.flash('success', { msg: 'Your password has been changed.' });
-            } else if (err && err.code === 11000) {
-                req.flash('error', { msg: 'The email address you have entered is already associated with another account.' });
-            } else {
-                req.flash('success', { msg: 'Your profile information has been updated.' });
+    console.log("Calling SQL Quesry in Profile Update-->");
+
+    models.userTables.updateAttributes({
+            where: {
+                id: id
             }
-            res.redirect('/account');
+        }).then(function(user) {
+            console.log("User data from PUT 1-->" + user)
+            if ('password' in req.body) {
+                user.password = req.body.password;
+            } else {
+                user.email = req.body.email;
+                user.name = req.body.name;
+                user.gender = req.body.gender;
+                user.location = req.body.location;
+                user.website = req.body.website;
+                console.log("User data from PUT 2 -->" + user);
+            }
+            console.log("User data from PUT 3-->" + user);
+            user.save().
+            then(function(err) {
+                if ('password' in req.body) {
+                    req.flash('success', { msg: 'Your password has been changed.' });
+                } else if (err && err.code === 11000) {
+                    req.flash('error', { msg: 'The email address you have entered is already associated with another account.' });
+                } else {
+                    req.flash('success', { msg: 'Your profile information has been updated.' });
+                }
+                res.redirect('/account');
+            })
+        })
+        .catch(function(err) {
+            console.log("Error:", err);
+            return done(null, false, {
+                message: 'Something went wrong with your Profile Update'
+            });
         });
-    });
 };
 
 // delete account
@@ -215,7 +228,6 @@ exports.forgotGet = function(req, res) {
 };
 
 // POST forgot
-
 exports.forgotPost = function(req, res, next) {
     req.assert('email', 'Email is not valid').isEmail();
     req.assert('email', 'Email cannot be blank').notEmpty();
