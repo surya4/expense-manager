@@ -6,7 +6,7 @@ module.exports = function(sequelize, DataTypes) {
         name: DataTypes.STRING,
         username: { type: DataTypes.STRING, unique: true },
         email: { type: DataTypes.STRING, unique: true, allowNull: false },
-        password: { type: DataTypes.VIRTUAL, allowNull: false },
+        password: { type: DataTypes.STRING, allowNull: false },
         passwordResetToken: DataTypes.VIRTUAL,
         passwordResetExpires: DataTypes.VIRTUAL,
         gender: DataTypes.STRING,

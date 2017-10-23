@@ -4,8 +4,9 @@ var FacebookStrategy = require('passport-facebook').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
 var GithubStrategy = require('passport-github').Strategy;
+var bcrypt = require('bcrypt-nodejs');
 
-var User = require('../models/schema');
+var models = require('../models');
 
 // Serialize sessions
 passport.serializeUser(function(user, done) {
@@ -22,11 +23,34 @@ passport.deserializeUser(function(id, done) {
 });
 
 // Sign In with Email and Password
-passport.use(new LocalStrategy(
+passport.use(new LocalStrategy({
+        usernameField: 'email'
+    },
     function(email, password, done) {
-        console.log("Data from email and password login in passport" + email + password);
-        User.find({ where: { email: email } })
-            .success(function(user) {
+
+        // function comparePassword(hash, password, cb) {
+        //     console.log("hash" + hash);
+        //     console.log("password" + password);
+        //     bcrypt.compare(password, hash, function(err, res, isMatch) {
+        //         // res == true
+        //         cb(err, isMatch);
+        //     });
+        // }
+        // function comparePassword(hash, password, cb) {
+        //     bcrypt.compareSync(password, hash, function(err, isMatch) {
+        //         console.log("hash" + hash);
+        //         console.log("password" + password);
+        //         console.log("isMatch" + isMatch);
+        //         cb(err, isMatch);
+        //     });
+        // };
+        console.log("Data from email and password login in passport " + email + " " + password);
+        models.userTables.findOne({
+                where: {
+                    email: email
+                }
+            })
+            .then(function(user) {
                 console.log("Data from user login in passport" + user);
                 if (!user) {
                     return done(null, false, {
@@ -36,16 +60,51 @@ passport.use(new LocalStrategy(
                     });
                 };
                 console.log("Checking before comparing" + user);
-                // var isMatch =
-                //     // var isMatch = comparePassword(password, function(err, isMatch) {
+                // comparePassword(user.password, password) {
+                console.log("password in login --> " + password);
+
+                // if (!comparePassword(user.password, password)) {
+                //     return done(null, user, { msg: 'Invalid email or password' });
+                // }
+                // return (user);
+                // }
+                // })
+                // comparePassword(user.password, password, function(err, isMatch) {
+                //     console.log("isMatch -- >" + isMatch);
                 //     if (!isMatch) {
+                //         console.log("hash" + user.password);
+                //         console.log("password" + password);
                 //         return done(null, false, { msg: 'Invalid email or password' });
                 //     }
-                // return done(null, user);
-                // // });
-            }).error(function(err) {
-                done(err);
+                //     return done(null, user);
+                // });
+
+                bcrypt.compare(password, user.password, function(err, isMatch) {
+                    if (err)
+                        console.log('Error while checking password');
+                    else if (isMatch) {
+                        console.log('The password matches!');
+                        return done(null, user);
+                    } else {
+                        console.log('The username and password does NOT match!');
+                        return done(null, user, { msg: 'Invalid email or password' });
+                    }
+
+                });
+
+            })
+
+        .catch(function(err) {
+            console.log("Error:", err);
+            return done(null, false, {
+                message: 'Something went wrong with your Login'
             });
+
+
+            // .error(function(err) {
+            //     done(err);
+            // });
+        });
     }));
 
 // Facebook Login

@@ -41,8 +41,12 @@ exports.loginPost = function(req, res, next) {
         return res.redirect('/login');
     }
 
+    // checking user entred sigin values
+    console.log("User email data -- > " + req.body.email + " , " + req.body.password);
+
     passport.authenticate('local', function(err, user, info) {
         console.log("Checking user " + user);
+        console.log("Checking info " + info);
         if (!user) {
             console.log("Login user authenticate --> " + info);
             req.flash('error', { msg: info });
@@ -74,7 +78,7 @@ exports.signupGet = function(req, res) {
 /* POST Sign Up page. */
 exports.signupPost = function(req, res, next) {
     // validating userdata
-    console.log("validating userdata");
+    console.log("validating shignup userdata");
 
     req.assert('name', 'Name cannot be blank').notEmpty();
     req.assert('username', 'Username cannot be blank').notEmpty();
