@@ -1,12 +1,11 @@
 const express = require('express');
 var models = require('../models');
-// User = models['User'];
 var passport = require('passport');
 var sequelize = require('sequelize');
 var crypto = require('crypto');
 var bcrypt = require('bcrypt-nodejs');
-// Login required middleware
 
+// Login required middleware
 exports.ensureAuthenticated = function(req, res, next) {
     if (req.isAuthenticated()) {
         next();
@@ -431,11 +430,4 @@ exports.unlink = function(req, res, next) {
 // get hash of password
 function create_hashPassword(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
-};
-
-// validate password
-function comparePassword(password, cb) {
-    bcrypt.compare(password, this.password, function(err, isMatch) {
-        cb(err, isMatch);
-    });
 };

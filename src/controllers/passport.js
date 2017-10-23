@@ -36,13 +36,13 @@ passport.use(new LocalStrategy(
                     });
                 };
                 console.log("Checking before comparing" + user);
-
-                user.comparePassword(password, function(err, isMatch) {
-                    if (!isMatch) {
-                        return done(null, false, { msg: 'Invalid email or password' });
-                    }
-                    return done(null, user);
-                });
+                // var isMatch =
+                //     // var isMatch = comparePassword(password, function(err, isMatch) {
+                //     if (!isMatch) {
+                //         return done(null, false, { msg: 'Invalid email or password' });
+                //     }
+                // return done(null, user);
+                // // });
             }).error(function(err) {
                 done(err);
             });
@@ -266,3 +266,10 @@ passport.use(new GithubStrategy({
         })
     }
 }));
+
+// validate password
+function comparePassword(password, cb) {
+    bcrypt.compare(password, this.password, function(err, isMatch) {
+        cb(err, isMatch);
+    });
+};
