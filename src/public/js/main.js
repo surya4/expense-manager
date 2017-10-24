@@ -1,3 +1,3 @@
-$(function() {
-  // Your custom JavaScript goes here
+$(document).ready(function() {
+    // Your custom JavaScript goes here
 });

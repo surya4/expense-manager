@@ -7,6 +7,7 @@ var bcrypt = require('bcrypt-nodejs');
 
 // Login required middleware
 exports.ensureAuthenticated = function(req, res, next) {
+    console.log("Calling to check authenticated");
     if (req.isAuthenticated()) {
         next();
     } else {
@@ -166,7 +167,7 @@ exports.profilePut = function(req, res, next) {
 
     if (errors) {
         req.flash('error', errors);
-        return res.redirect('/account');
+        return res.redirect('/profile');
     }
 
     console.log("Calling SQL Quesry in Profile Update-->");
@@ -197,7 +198,7 @@ exports.profilePut = function(req, res, next) {
                 } else {
                     req.flash('success', { msg: 'Your profile information has been updated.' });
                 }
-                res.redirect('/account');
+                res.redirect('/profile');
             })
         })
         .catch(function(err) {

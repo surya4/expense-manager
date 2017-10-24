@@ -13,7 +13,7 @@ router.get('/', homeController.index_get);
 
 // user profile page
 router.get('/profile', userController.ensureAuthenticated, userController.profileGet);
-router.post('/profile', userController.ensureAuthenticated, userController.profilePut);
+router.put('/profile', userController.ensureAuthenticated, userController.profilePut);
 router.delete('/profile', userController.ensureAuthenticated, userController.profileDelete);
 
 // user accounts login

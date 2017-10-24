@@ -12,18 +12,18 @@ var models = require('../models');
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
-
 // used to deserialize the user
 passport.deserializeUser(function(id, done) {
-    models.userTables.findById(id).then(function(user) {
-        if (user) {
-            done(null, user.get());
-        } else {
-            done(user.errors, null);
-        }
-    });
-
+    models.userTables.find({
+            where: {
+                id: id
+            }
+        })
+        .then(function(user) {
+            done(null, user);
+        });
 });
+
 
 // Sign in with Email and Password
 passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
@@ -267,11 +267,6 @@ passport.use(new TwitterStrategy({
                     return done(null, user);
                 }
                 // Twitter does not provide an email address, but email is a required field in our User schema.
-                // We can "fake" a Twitter email address as follows: username@twitter.com.
-                // Ideally, it should be changed by a user to their real email address afterwards.
-                // For example, after login, check if email contains @twitter.com, then redirect to My Account page,
-                // and restrict user's page navigation until they update their email address.
-                // user = new User()
 
                 var new_User = {
                     name: profile.displayName,

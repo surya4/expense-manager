@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.use(expressValidator());
 app.use(methodOverride('_method'));
 app.use(session({
-    secret: "asxsadasdasdasdasdasdsadasdasdasdsa",
+    secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true
 }));
